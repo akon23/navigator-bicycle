@@ -15,26 +15,15 @@ class AppRouteParser extends RouteInformationParser<IRouteConfig> {
       final configuration = BaseRouteConfig(uri: routeInformation.uri);
 
       return SynchronousFuture<IRouteConfig>(configuration);
-    } on Object catch (error) {
+    } on Object {
       return SynchronousFuture<IRouteConfig>(
-         NotFoundRouteConfig(),
+        NotFoundRouteConfig(),
       );
     }
   }
 
   @override
   RouteInformation? restoreRouteInformation(IRouteConfig configuration) {
-    return super.restoreRouteInformation(configuration);
-  }
-
-  @override
-  Future<IRouteConfig> parseRouteInformationWithDependencies(
-    RouteInformation routeInformation,
-    BuildContext context,
-  ) {
-    return super.parseRouteInformationWithDependencies(
-      routeInformation,
-      context,
-    );
+    return RouteInformation(uri: configuration.uri, state: configuration.state);
   }
 }
