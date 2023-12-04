@@ -11,6 +11,7 @@ class _UnknownPageState extends State<UnknownPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue,
       appBar: AppBar(),
       body: const Center(
         child: Text('404'),

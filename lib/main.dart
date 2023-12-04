@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:navigator_bicycle/navigator/route_parser.dart';
 import 'package:navigator_bicycle/navigator/router_delegate.dart';
 
+import 'navigator/bloc/navigator_bloc.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -14,8 +16,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final _delegate = AppRouterDelegate();
+  late final NavigatorBloc _navigatorBloc;
+  late final AppRouterDelegate _delegate;
   final _parser = AppRouteParser();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _navigatorBloc = NavigatorBloc();
+    _delegate = AppRouterDelegate(navigatorBloc: _navigatorBloc);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +35,10 @@ class _MyAppState extends State<MyApp> {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(
+              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+        ),
       ),
 
       /// routeInformationProvider нужен для работы с интентами навигации от платформы

@@ -1,5 +1,5 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:navigator_bicycle/navigator/route_config.dart';
 import 'package:navigator_bicycle/navigator/routes.dart';
 
 typedef PageBuilder = Function(
@@ -10,32 +10,33 @@ typedef PageBuilder = Function(
 class PagesBuilder extends StatefulWidget {
   const PagesBuilder({
     super.key,
-    required AppRouter router,
-    required this.configuration,
     required this.builder,
-  }) : _router = router;
+    required this.routes,
+    required this.router,
+  });
 
-  final IRouteConfig configuration;
   final PageBuilder builder;
-  final AppRouter _router;
+  final List<AppRouteModel> routes;
+  final AppRouter router;
 
   @override
   State<PagesBuilder> createState() => _PagesBuilderState();
 }
 
 class _PagesBuilderState extends State<PagesBuilder> {
-  late IRouteConfig _configuration;
   List<Page> _pages = [];
 
   @override
   void initState() {
     super.initState();
+
     _preparePages();
   }
 
   @override
   void didUpdateWidget(PagesBuilder oldWidget) {
-    if (_configuration.uri != widget.configuration.uri) {
+    if (!const DeepCollectionEquality.unordered()
+        .equals(oldWidget.routes, widget.routes)) {
       _preparePages();
     }
 
@@ -51,14 +52,11 @@ class _PagesBuilderState extends State<PagesBuilder> {
   }
 
   void _preparePages() {
-    _configuration = widget.configuration;
-
-    final pagesNames = widget.configuration.uri.pathSegments;
-    _pages = pagesNames
-        .where((name) => widget._router.routes.containsKey(name))
+    _pages = widget.routes
         .map(
-          (name) => MaterialPage(
-            child: widget._router.routes[name]!.call(context),
+          (route) => MaterialPage(
+            child: widget.router.routes[route.name]!.call(context),
+            name: route.name,
           ),
         )
         .toList();
@@ -66,8 +64,8 @@ class _PagesBuilderState extends State<PagesBuilder> {
     if (_pages.isEmpty) {
       _pages = [
         MaterialPage(
-          child: widget._router.routes[AppRoutes.home]!.call(context),
-          name: AppRoutes.home,
+          child: widget.router.routes[AppRoutes.home.name]!.call(context),
+          name: AppRoutes.home.name,
         )
       ];
     }

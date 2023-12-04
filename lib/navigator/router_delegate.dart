@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:navigator_bicycle/navigator/bloc/navigator_bloc.dart';
 import 'package:navigator_bicycle/navigator/observers.dart';
 import 'package:navigator_bicycle/navigator/pages_builder.dart';
 import 'package:navigator_bicycle/navigator/route_config.dart';
@@ -8,38 +12,58 @@ import 'package:navigator_bicycle/pages/unknown_page.dart';
 
 class AppRouterDelegate extends RouterDelegate<IRouteConfig>
     with ChangeNotifier {
+  AppRouterDelegate({
+    required NavigatorBloc navigatorBloc,
+  }) : _navigatorBloc = navigatorBloc;
+
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _appRouter = AppRouter();
 
-  IRouteConfig? _currentConfiguration;
+  final NavigatorBloc _navigatorBloc;
 
   @override
   Widget build(BuildContext context) {
-    return PagesBuilder(
-      router: _appRouter,
-      configuration: currentConfiguration,
-      builder: (context, pages) {
-        return Navigator(
-          key: _navigatorKey,
-          observers: [
-            PageObserver(),
-          ],
-          pages: pages,
-          onUnknownRoute: (settings) => MaterialPageRoute<void>(
-            settings: settings,
-            builder: (context) => const UnknownPage(),
-          ),
-          onPopPage: (Route<Object?> route, Object? result) {
-            if (!route.didPop(result)) {
-              return false;
-            }
-            setNewRoutePath(
-              currentConfiguration.previous ?? NotFoundRouteConfig(),
+    return BlocProvider<NavigatorBloc>.value(
+      value: _navigatorBloc,
+      child: BlocConsumer<NavigatorBloc, NavigatorBlocState>(
+        listener: (context, state) {
+          // TODO: Слушать события блока навигатор
+          log('''
+          ===
+          
+          URI = ${state.configuration.uri}\n
+          Stack = ${state.routesStack.map((e) => e.name).join(' , ')}
+          
+          ====
+          ''');
+        },
+        builder: (context, state) => PagesBuilder(
+          router: _appRouter,
+          routes: state.routesStack,
+          builder: (context, pages) {
+            return Navigator(
+              key: _navigatorKey,
+              observers: [
+                PageObserver(),
+              ],
+              pages: pages,
+              onUnknownRoute: (settings) => MaterialPageRoute<void>(
+                settings: settings,
+                builder: (context) => const UnknownPage(),
+              ),
+              onPopPage: (Route<Object?> route, Object? result) {
+                if (!route.didPop(result)) {
+                  return false;
+                }
+
+                _navigatorBloc.add(const NavigatorBlocEvent.pop());
+
+                return true;
+              },
             );
-            return true;
           },
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -65,22 +89,10 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfig>
 
   @override
   Future<void> setNewRoutePath(IRouteConfig configuration) {
-    if (_currentConfiguration == configuration) {
-      return SynchronousFuture<void>(null);
-    }
+    _navigatorBloc.add(NavigatorBlocEvent.applyConfiguration(configuration));
 
-    _currentConfiguration = configuration;
     notifyListeners();
 
     return SynchronousFuture<void>(null);
-  }
-
-  @override
-  IRouteConfig get currentConfiguration {
-    final configuration = _currentConfiguration;
-    if (configuration == null) {
-      throw UnsupportedError('Изначальная конфигурация не установлена');
-    }
-    return configuration;
   }
 }

@@ -3,43 +3,61 @@ import 'package:navigator_bicycle/pages/about_page.dart';
 import 'package:navigator_bicycle/pages/home_page.dart';
 import 'package:navigator_bicycle/pages/settings_page.dart';
 import 'package:navigator_bicycle/pages/unknown_page.dart';
+import 'package:navigator_bicycle/utils/extentions/navigator_extensions.dart';
 
-// class AppPage<T> extends Page<T> {
-//   const AppPage({
-//     required this.pageName,
-//     required this.builder,
-//     super.arguments,
-//   }) : super(name: pageName);
-//
-//   final String pageName;
-//   final WidgetBuilder builder;
-//
-//   /// Добавить парсинг роута из строки
-//
-//   @override
-//   Route<T> createRoute(BuildContext context) {
-//     return MaterialPageRoute(
-//       builder: builder,
-//       settings: this,
-//     );
-//   }
-// }
+class AppRouteModel<T> {
+  const AppRouteModel(this.name) : arguments = null;
+
+  AppRouteModel.args(this.name, {this.arguments});
+
+  final String name;
+
+  // TODO: Абстрактный класс для аргументов?
+  /// Тогда в state [IRouteConfig] будет Map<String, PageArguments?>
+  final T? arguments;
+
+  AppRouteModel<T> withArguments(T arguments) {
+    return AppRouteModel<T>.args(name, arguments: arguments);
+  }
+
+  T getRequiredArguments(BuildContext context) {
+    return context.navBloc.state.routesStack
+        .firstWhere((route) => route.name == name)
+        .arguments;
+  }
+}
 
 class AppRoutes {
-  // static const main = '/';
-  static const home = 'home';
-  static const settings = 'settings';
-  static const about = 'about';
-  static const notFound = 'notFound';
+  static const _mainPath = '/';
+  static const _homePath = 'home';
+  static const _settingsPath = 'settings';
+  static const _aboutPath = 'about';
+  static const _notFoundPath = 'notFound';
 
-// static const mainPage = AppPage(name: main, builder: () {});
+  static const main = AppRouteModel(_mainPath);
+
+  static const home = AppRouteModel(_homePath);
+
+  static const settings = AppRouteModel<int>(_settingsPath);
+
+  static const about = AppRouteModel<String>(_aboutPath);
+
+  static const notFound = AppRouteModel(_notFoundPath);
 }
 
 class AppRouter {
   Map<String, WidgetBuilder> get routes => {
-        AppRoutes.home: (context) => const HomePage(),
-        AppRoutes.settings: (context) => const SettingsPage(),
-        AppRoutes.about: (context) => const AboutPage(),
-        AppRoutes.notFound: (context) => const UnknownPage(),
+        AppRoutes.home.name: (context) => const HomePage(),
+        AppRoutes.settings.name: (context) {
+          final args = AppRoutes.settings.getRequiredArguments(context);
+
+          return SettingsPage(args: args);
+        },
+        AppRoutes.about.name: (context) {
+          final args = AppRoutes.about.getRequiredArguments(context);
+
+          return AboutPage(args: args);
+        },
+        AppRoutes.notFound.name: (context) => const UnknownPage(),
       };
 }

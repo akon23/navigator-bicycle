@@ -12,9 +12,20 @@ class AppRouteParser extends RouteInformationParser<IRouteConfig> {
         return SynchronousFuture<IRouteConfig>(routeInformation);
       }
 
-      final configuration = BaseRouteConfig(uri: routeInformation.uri);
-
-      return SynchronousFuture<IRouteConfig>(configuration);
+      if (routeInformation.uri.path == '/') {
+        return SynchronousFuture<IRouteConfig>(HomeRouteConfig());
+      } else {
+        final state = routeInformation.state;
+        if (state is Map<String, Object?>) {
+          return SynchronousFuture<IRouteConfig>(
+            BaseRouteConfig(uri: routeInformation.uri, state: state),
+          );
+        } else {
+          return SynchronousFuture<IRouteConfig>(
+            BaseRouteConfig(uri: routeInformation.uri),
+          );
+        }
+      }
     } on Object {
       return SynchronousFuture<IRouteConfig>(
         NotFoundRouteConfig(),
