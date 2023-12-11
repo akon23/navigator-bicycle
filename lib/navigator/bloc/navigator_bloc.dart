@@ -25,6 +25,7 @@ class NavigatorBloc extends Bloc<NavigatorBlocEvent, NavigatorBlocState> {
         _UpdateStackEvent() => _handleUpdateStackEvent(event, emit),
         _ApplyConfigurationEvent() =>
           _handleApplyConfigurationEvent(event, emit),
+        _ReplaceLastEvent() => _handleReplaceLastEvent(event, emit),
       },
       transformer: sequential(),
     );
@@ -37,12 +38,36 @@ class NavigatorBloc extends Bloc<NavigatorBlocEvent, NavigatorBlocState> {
     final newConfig = state.configuration.add(event.route);
     final newStack = [...state.routesStack, event.route];
 
+    /// Уведомляет платформу об изменении в конфигурации
     SystemNavigator.routeInformationUpdated(
       uri: newConfig.uri,
       state: newConfig.state,
     );
 
     // TODO: Добавлять просто в стек и потом гененрировать config по этому стеку ?
+
+    emit(
+      NavigatorBlocState(
+        configuration: newConfig,
+        routesStack: newStack,
+      ),
+    );
+  }
+
+  void _handleReplaceLastEvent(
+    _ReplaceLastEvent event,
+    Emitter<NavigatorBlocState> emit,
+  ) {
+    final newStack = state.routesStack.toList()
+      ..removeLast()
+      ..add(event.route);
+
+    final newConfig = _configFromStack(newStack);
+
+    SystemNavigator.routeInformationUpdated(
+      uri: newConfig.uri,
+      state: newConfig.state,
+    );
 
     emit(
       NavigatorBlocState(

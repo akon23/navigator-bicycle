@@ -4,7 +4,9 @@ import 'package:navigator_bicycle/navigator/routes.dart';
 import 'package:navigator_bicycle/utils/extentions/navigator_extensions.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -25,32 +27,58 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 50),
+          const Text('HOME'),
+          const SizedBox(height: 50),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              const Text('HOME'),
-              const SizedBox(height: 50),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      context.navBloc.add(
-                        NavigatorBlocEvent.push(
-                          AppRoutes.settings.withArguments(31313),
-                        ),
-                      );
-                    },
-                    child: const Text('SETTINGS'),
-                  ),
-                ],
-              )
+              ElevatedButton(
+                onPressed: () {
+                  context.navBloc.add(
+                    NavigatorBlocEvent.push(
+                      AppRoutes.settings.withArguments(313131),
+                    ),
+                  );
+                },
+                child: const Text('SETTINGS'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context.navBloc.add(
+                    NavigatorBlocEvent.push(
+                      AppRoutes.tabsPage.withArguments(1),
+                    ),
+                  );
+                },
+                child: const Text('TABS'),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 50),
+          Expanded(
+            child: ColoredBox(
+              color: Colors.white54,
+              child: ListView.separated(
+                itemCount: 10,
+                itemBuilder: (context, index) => ListTile(
+                  title: Text('Item $index'),
+                  onTap: () {
+                    context.navBloc.add(
+                      NavigatorBlocEvent.push(
+                        AppRoutes.about.withArguments('About args $index'),
+                      ),
+                    );
+                  },
+                ),
+                separatorBuilder: (context, index) => const Divider(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

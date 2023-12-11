@@ -4,6 +4,9 @@ part of 'navigator_bloc.dart';
 sealed class NavigatorBlocEvent {
   const factory NavigatorBlocEvent.push(AppRouteModel routeName) = _PushEvent;
 
+  const factory NavigatorBlocEvent.replaceLast(AppRouteModel routeName) =
+      _ReplaceLastEvent;
+
   const factory NavigatorBlocEvent.pop() = _PopEvent;
 
   const factory NavigatorBlocEvent.updateStack(List<AppRouteModel> stack) =
@@ -15,6 +18,12 @@ sealed class NavigatorBlocEvent {
 
 class _PushEvent implements NavigatorBlocEvent {
   const _PushEvent(this.route);
+
+  final AppRouteModel route;
+}
+
+class _ReplaceLastEvent implements NavigatorBlocEvent {
+  const _ReplaceLastEvent(this.route);
 
   final AppRouteModel route;
 }

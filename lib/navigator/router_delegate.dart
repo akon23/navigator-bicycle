@@ -33,7 +33,7 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfig>
           
           URI = ${state.configuration.uri}\n
           Stack = ${state.routesStack.map((e) => e.name).join(' , ')}
-          
+                    
           ====
           ''');
         },
@@ -51,6 +51,8 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfig>
                 settings: settings,
                 builder: (context) => const UnknownPage(),
               ),
+
+              ///  Перехватывает нажатие кнопки назад в приложении
               onPopPage: (Route<Object?> route, Object? result) {
                 if (!route.didPop(result)) {
                   return false;
@@ -87,6 +89,7 @@ class AppRouterDelegate extends RouterDelegate<IRouteConfig>
     }
   }
 
+  /// Вызывается при изменении пути в адресной строке или просто со стороны ОС
   @override
   Future<void> setNewRoutePath(IRouteConfig configuration) {
     _navigatorBloc.add(NavigatorBlocEvent.applyConfiguration(configuration));

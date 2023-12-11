@@ -13,7 +13,6 @@ abstract class IRouteConfig implements RouteInformation {
   @override
   Map<String, Object?>? get state;
 
-  /// Метод для добавления страницы к текущей конфигурации
   IRouteConfig add(AppRouteModel page);
 
   @override

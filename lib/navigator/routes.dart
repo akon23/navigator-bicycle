@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:navigator_bicycle/pages/about_page.dart';
 import 'package:navigator_bicycle/pages/home_page.dart';
 import 'package:navigator_bicycle/pages/settings_page.dart';
+import 'package:navigator_bicycle/pages/tabs_page.dart';
 import 'package:navigator_bicycle/pages/unknown_page.dart';
 import 'package:navigator_bicycle/utils/extentions/navigator_extensions.dart';
 
@@ -33,6 +34,7 @@ class AppRoutes {
   static const _settingsPath = 'settings';
   static const _aboutPath = 'about';
   static const _notFoundPath = 'notFound';
+  static const _tabsPagePath = 'tabs';
 
   static const main = AppRouteModel(_mainPath);
 
@@ -43,6 +45,8 @@ class AppRoutes {
   static const about = AppRouteModel<String>(_aboutPath);
 
   static const notFound = AppRouteModel(_notFoundPath);
+
+  static const tabsPage = AppRouteModel<int>(_tabsPagePath);
 }
 
 class AppRouter {
@@ -59,5 +63,10 @@ class AppRouter {
           return AboutPage(args: args);
         },
         AppRoutes.notFound.name: (context) => const UnknownPage(),
+        AppRoutes.tabsPage.name: (context) {
+          final args = AppRoutes.tabsPage.getRequiredArguments(context);
+
+          return TabsPage(tabIndex: args);
+        }
       };
 }

@@ -52,14 +52,21 @@ class _PagesBuilderState extends State<PagesBuilder> {
   }
 
   void _preparePages() {
-    _pages = widget.routes
-        .map(
-          (route) => MaterialPage(
-            child: widget.router.routes[route.name]!.call(context),
+    _pages = widget.routes.map(
+      (route) {
+        if (!widget.router.routes.containsKey(route.name)) {
+          return MaterialPage(
+            child: widget.router.routes[AppRoutes.notFound.name]!.call(context),
             name: route.name,
-          ),
-        )
-        .toList();
+          );
+        }
+
+        return MaterialPage(
+          child: widget.router.routes[route.name]!.call(context),
+          name: route.name,
+        );
+      },
+    ).toList();
 
     if (_pages.isEmpty) {
       _pages = [
